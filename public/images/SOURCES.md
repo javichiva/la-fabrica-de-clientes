@@ -21,3 +21,11 @@ Reutilizadas por petición del propietario. Se conservan los archivos originales
 - Detalle del proyecto Blaze Media: https://javierchiva.com/wp-content/uploads/2025/07/Captura-de-pantalla-2025-07-14-a-las-22.51.18.png
 - Proyecto Clínica Ergoterapia: https://javierchiva.com/wp-content/uploads/2026/05/home-ergoterapia.jpg
 - Detalle del proyecto Clínica Ergoterapia: https://javierchiva.com/wp-content/uploads/2026/05/especialidades.jpg
+
+## Fotografías adicionales · 25/09/2026
+
+Seleccionadas e inspeccionadas desde las fotografías que el usuario identifica como propias de javierchiva.com. Se conserva el original, sin generación ni retoque. No se atribuyen nombres ni cargos a otras personas de las imágenes.
+
+- planificacion-pizarra.jpg: https://javierchiva.com/wp-content/uploads/2025/10/Desarrollo-plugins-e1760993389642.jpg
+- trabajo-ecommerce.jpg: https://javierchiva.com/wp-content/uploads/2025/10/Tiendas-Online-e1760993665577.jpg
+- desarrollo-en-equipo.jpg: https://javierchiva.com/wp-content/uploads/2025/10/Mantenimiento-y-Optimizacion-Web-e1760993628248.jpg
