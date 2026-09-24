@@ -1,3 +1,8 @@
 import {pages,sectors,cases} from '../data/pages';
-import {journal as articles} from '../data/journal';
-export const GET=()=>{const paths=['','servicios','sectores','casos-reales','blog','contacto',...pages.map(p=>p.slug),...sectors.map(p=>'sectores/'+p.slug),...cases.map(p=>'casos-reales/'+p.slug),...articles.map(p=>'blog/'+p.slug)];return new Response('<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'+paths.map(p=>'<url><loc>https://www.lafabricadeclientes.es/'+(p?p+'/':'')+'</loc></url>').join('')+'</urlset>',{headers:{'Content-Type':'application/xml'}})};
+import {journal} from '../data/journal';
+import type {APIRoute} from 'astro';
+export const GET:APIRoute=({site})=>{
+ const paths=['','servicios','sectores','casos-reales','blog','contacto',...pages.map(p=>p.slug),...sectors.map(p=>'sectores/'+p.slug),...cases.map(p=>'casos-reales/'+p.slug),...journal.map(p=>'blog/'+p.slug)];
+ const escape=(value:string)=>value.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+ return new Response('<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'+[...new Set(paths)].map(p=>'<url><loc>'+escape(new URL(p?p+'/':'/',site).href)+'</loc></url>').join('')+'</urlset>',{headers:{'Content-Type':'application/xml; charset=utf-8'}});
+};

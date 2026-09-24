@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "astro dev --host 127.0.0.1",
     "build": "astro build",
-    "preview": "astro preview --host 127.0.0.1"
+    "preview": "astro preview --host 127.0.0.1",
+    "check:seo": "python3 scripts/verify-build.py"
   },
   "dependencies": {
     "astro": "^7.3.5"

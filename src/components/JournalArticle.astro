@@ -4,7 +4,7 @@ import {journal,readingMinutes,type JournalPost} from '../data/journal';
 interface Props {post:JournalPost}
 const {post}=Astro.props;
 const related=journal.filter(p=>p.slug!==post.slug);
-const schema={'@context':'https://schema.org','@type':'BlogPosting',headline:post.title,description:post.description,author:{'@type':'Organization',name:'La Fábrica de Clientes',url:new URL('/sobre-nosotros/',Astro.site).href},publisher:{'@type':'Organization',name:'La Fábrica de Clientes'},image:new URL('/images/'+post.image,Astro.site).href,mainEntityOfPage:new URL('/blog/'+post.slug+'/',Astro.site).href,inLanguage:'es'};
+const schema={'@context':'https://schema.org','@type':'BlogPosting',headline:post.title,description:post.description,author:{'@type':'Organization',name:'La Fábrica de Clientes',url:new URL('/sobre-nosotros/',Astro.site).href},publisher:{'@id':new URL('/#organization',Astro.site).href},image:new URL('/images/'+post.image,Astro.site).href,mainEntityOfPage:new URL('/blog/'+post.slug+'/',Astro.site).href,inLanguage:'es'};
 ---
 <script type="application/ld+json" set:html={JSON.stringify(schema)}/>
 <header class="journal-article-hero"><div class="wrap"><div class="breadcrumbs"><a href="/">Inicio</a> / <a href="/blog/">Ideas para tu negocio</a></div><p class="eyebrow">{post.category}</p><h1>{post.title}</h1><p class="lead">{post.description}</p><div class="journal-byline"><a href="/sobre-nosotros/">La Fábrica de Clientes</a><span>Guía práctica</span><span>{readingMinutes(post)} min de lectura</span></div></div></header>

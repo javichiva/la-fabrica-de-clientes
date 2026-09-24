@@ -20,8 +20,12 @@ npm run build
 
 Para envío directo desde la web, configurar un endpoint de recepción autorizado. Confirmar datos legales. Completar casos con acciones, fechas, imágenes y métricas verificadas: los casos recogen actuaciones documentadas en javierchiva.com y omiten métricas sin contexto verificable. Validar especializaciones sectoriales y alcance de los 10.000 €. Revisar exportación de URLs/Search Console y preparar redirecciones reales antes de sustituir WordPress. El dominio actual no se ha modificado.
 
-Canonical y sitemap apuntan al dominio final. La revisión se sirve en local; no hay una publicación de Sites confirmada. No se cargan analítica ni cookies publicitarias.
+Canonical y sitemap apuntan al dominio final. La revisión está publicada en Sites con acceso privado. No se cargan analítica ni cookies publicitarias.
 
 ## Verificación
 
 `python3 scripts/verify-build.py` comprueba los HTML generados, metadatos, imágenes, enlaces locales y sitemap después de `npm run build`. Los detalles de proyectos están en `src/data/case-details.ts`.
+
+## Auditoría antes de migrar
+
+Consultar `docs/auditoria-seo-tecnico.md` y el inventario `docs/migracion-urls.csv`. La versión de revisión está publicada con acceso privado en Sites. El dominio definitivo conserva WordPress; no sustituirlo antes de resolver las URLs antiguas, páginas legales y recepción de consultas.
