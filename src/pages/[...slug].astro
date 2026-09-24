@@ -1,0 +1,49 @@
+---
+import Layout from '../layouts/Layout.astro';
+import JournalArticle from '../components/JournalArticle.astro';
+import {journal} from '../data/journal';
+import ServiceExperience from '../components/ServiceExperience.astro';
+import SectorExperience from '../components/SectorExperience.astro';
+import {serviceExperience} from '../data/service-experience';
+import '../styles/interiors.css';
+import {caseDetails} from '../data/case-details';
+import {pages,sectors,cases,articles} from '../data/pages';
+export function getStaticPaths(){return [...pages.filter(p=>p.slug!=='sobre-nosotros').map(p=>({params:{slug:p.slug},props:{page:p}})),...sectors.map(s=>({params:{slug:'sectores/'+s.slug},props:{page:{...s,tag:'CAPTACIÓN POR SECTOR',links:[['Captación de clientes','/captacion-de-clientes/'],['Casos reales','/casos-reales/']]}}})),...articles.map(a=>({params:{slug:'blog/'+a.slug},props:{page:{...a,heading:a.title,tag:'IDEAS PARA TU NEGOCIO',links:[['Cómo podemos ayudarte','/captacion-de-clientes/'],['Más ideas','/blog/']]}}})),...cases.map(c=>{const detail=caseDetails[c.slug as keyof typeof caseDetails];return {params:{slug:'casos-reales/'+c.slug},props:{page:{title:c.name+' · Nuestra experiencia',heading:c.name,tag:c.type.toUpperCase(),intro:detail.intro,sections:detail.sections,focus:detail.focus,source:'source' in detail?detail.source:undefined,links:[['Todos los negocios','/casos-reales/'],['Cómo podemos ayudarte','/captacion-de-clientes/']]}}}})]}
+
+const {page}=Astro.props;
+const visuals: Record<string,{src:string,alt:string,caption:string,width:number,height:number}[]> = {
+"casos-reales/ecoherbes":[{"src": "ecoherbes.jpg", "width": 1000, "height": 700, "alt": "Portada del proyecto Ecoherbes", "caption": "Ecoherbes · Captura del proyecto publicado en Javier Chiva."}, {"src": "ecoherbes-detalle.jpg", "width": 1000, "height": 700, "alt": "Detalle del proyecto Ecoherbes", "caption": "Ecoherbes · Captura del proyecto publicado en Javier Chiva."}],
+"casos-reales/bon-mares-asesores":[{"src": "bon-mares.jpg", "width": 1200, "height": 615, "alt": "Portada del proyecto Bon & Mares Asesores", "caption": "Bon & Mares Asesores · Captura del proyecto publicado en Javier Chiva."}, {"src": "bon-mares-detalle.png", "width": 1200, "height": 543, "alt": "Detalle del proyecto Bon & Mares Asesores", "caption": "Bon & Mares Asesores · Captura del proyecto publicado en Javier Chiva."}],
+"casos-reales/blaze-media":[{"src": "blaze-media.png", "width": 1000, "height": 700, "alt": "Portada del proyecto Blaze Media", "caption": "Blaze Media · Captura del proyecto publicado en Javier Chiva."}, {"src": "blaze-media-detalle.png", "width": 1000, "height": 700, "alt": "Detalle del proyecto Blaze Media", "caption": "Blaze Media · Captura del proyecto publicado en Javier Chiva."}],
+"casos-reales/clinica-ergoterapia":[{"src": "ergoterapia.jpg", "width": 1000, "height": 700, "alt": "Portada del proyecto Clínica Ergoterapia", "caption": "Clínica Ergoterapia · Captura del proyecto publicado en Javier Chiva."}, {"src": "ergoterapia-detalle.jpg", "width": 1000, "height": 700, "alt": "Detalle del proyecto Clínica Ergoterapia", "caption": "Clínica Ergoterapia · Captura del proyecto publicado en Javier Chiva."}],
+ 'sobre-nosotros':[{src:'javier-trabajando.jpg',alt:'Sesión de trabajo junto a dos portátiles',caption:'El trabajo empieza por entender cada proyecto.',width:1000,height:700},{src:'trabajo-web.jpg',alt:'Reunión de trabajo de Javier Chiva',caption:'Javier Chiva · Dirección del proyecto',width:900,height:450}],
+ 'como-trabajamos':[{src:'javier-trabajando.jpg',alt:'Revisión conjunta de un proyecto',caption:'Conversar, revisar y decidir juntos.',width:1000,height:700}],
+ 'captacion-de-clientes':[{src:'trabajo-web.jpg',alt:'Reunión para conversar sobre un proyecto',caption:'Primero, conocer el negocio.',width:900,height:450}],
+ 'servicios/diseno-web':[{src:'trabajo-software.jpg',alt:'Revisión de una web en móvil junto a un ordenador',caption:'El trabajo de desarrollo, en escritorio y móvil.',width:900,height:450}],
+ 'casos-reales/confrio':[{src:'confrio-web.jpg',alt:'Portada de la web de Confrio',caption:'Web de Confrio · Imagen del proyecto publicado en javierchiva.com.',width:1000,height:700},{src:'proyecto-confrio.jpg',alt:'Sección de asesoramiento técnico de Confrio',caption:'Detalle de la propuesta y el recorrido de contacto.',width:768,height:538}],
+ 'casos-reales/electrica-levante':[{src:'proyecto-electrica-levante.png',alt:'Portada de Eléctrica Levante',caption:'Web de Eléctrica Levante · Imagen del proyecto publicado en javierchiva.com.',width:768,height:386}],
+ 'casos-reales/suboney':[{src:'proyecto-siboney.jpg',alt:'Portada de la Escuela Náutica Siboney',caption:'Escuela Náutica Siboney · Imagen del proyecto publicado en javierchiva.com.',width:700,height:500}],
+ 'casos-reales/reparatec':[{src:'reparatec-proyecto.jpeg',alt:'Ejemplo de anuncio de Reparatec mostrado en el proyecto',caption:'Material del proyecto de Google Ads para Reparatec publicado en javierchiva.com.',width:460,height:648}],
+ 'casos-reales/javier-chiva':[{src:'trabajo-software.jpg',alt:'Trabajo de desarrollo con ordenador y móvil',caption:'Desarrollo web · Javier Chiva',width:900,height:450}]
+};
+const path=Astro.url.pathname.replace(/^\/|\/$/g,'');
+const post=journal.find(p=>'blog/'+p.slug===path);
+const service=serviceExperience[path];
+const gallery=visuals[path] || [];
+const isArticle=path.startsWith('blog/');
+const isCase=path.startsWith('casos-reales/');
+const category=isArticle?['Ideas para tu negocio','/blog/']:isCase?['Casos reales','/casos-reales/']:path.startsWith('servicios/')?['Servicios','/servicios/']:path.startsWith('sectores/')?['Sectores','/sectores/']:null;
+const heroImage=gallery[0] || (!isArticle?{src:'trabajo-software.jpg',alt:'Trabajo de desarrollo en ordenador y móvil',caption:'Estrategia y ejecución para tu negocio.',width:900,height:450}:null);
+const readingTime=Math.max(1,Math.ceil((page.intro+' '+page.sections.map(s=>s.join(' ')).join(' ')).split(/\s+/).length/200));
+const related= isArticle?journal.filter(a=>'blog/'+a.slug!==path).map(a=>({...a,intro:a.description})):[];
+
+
+---
+<Layout title={post?.title||page.title} description={post?.description||page.intro} noindex={isArticle&&!post} ogImage={post?'/images/'+post.image:undefined} ogType={post?'article':'website'}>
+{post ? <JournalArticle post={post}/> : service ? <ServiceExperience service={service} path={path}/> : path.startsWith('sectores/') ? <SectorExperience page={page} path={path}/> : <>
+<section class:list={['page-hero','detail-hero',{'editorial-hero':isArticle}]}><div class="wrap"><div class="breadcrumbs"><a href="/">Inicio</a> / {category&&<><a href={category[1]}>{category[0]}</a> / </>}{isCase?page.heading:page.title}</div><div class:list={['detail-hero-grid',{'with-photo':!!heroImage}]}><div><p class="eyebrow">{page.tag}</p><h1>{page.heading}</h1><p class="lead">{page.intro}</p>{isArticle?<p class="reading-meta">La Fábrica de Clientes <span>·</span> {readingTime} min de lectura</p>:<a class="button" href="/contacto/">Hablemos de tu empresa ↗</a>}{page.focus&&<p class="reading-meta">{page.focus}</p>}</div>{heroImage&&<figure class:list={['detail-cover',{'case-cover':isCase}]}><img src={'/images/'+heroImage.src} alt={heroImage.alt} width={heroImage.width} height={heroImage.height} fetchpriority="high"/><figcaption>{heroImage.caption}</figcaption></figure>}</div></div></section>
+<div class="wrap section article-layout"><article class="article-content">{isArticle&&<p class="article-opening">{page.intro}</p>}{page.sections.map(([title,text],i)=><section id={'apartado-'+(i+1)}><span class="section-number">{String(i+1).padStart(2,'0')}</span><h2>{title}</h2><p>{text}</p></section>)}{gallery.slice(1).map(photo=><figure class="article-photo"><img src={'/images/'+photo.src} alt={photo.alt} width={photo.width} height={photo.height} loading="lazy"/><figcaption>{photo.caption}</figcaption></figure>)}{page.source&&<p class="project-source"><a href={page.source} target="_blank" rel="noopener noreferrer">Ver el proyecto publicado en Javier Chiva ↗</a></p>}</article><aside class="side-panel"><nav class="page-contents" aria-label="Contenido de la página"><p class="eyebrow">EN ESTA PÁGINA</p>{page.sections.map(([title],i)=><a href={'#apartado-'+(i+1)}><span>{String(i+1).padStart(2,'0')}</span>{title}</a>)}</nav><div class="sidebar-contact"><p class="eyebrow">TU SIGUIENTE PASO</p><h2>Hablemos de tu empresa.</h2><p>Cuéntanos qué haces, cómo llegan hoy tus clientes y qué quieres mejorar.</p><a class="button" href="/contacto/">Valorar mi proyecto ↗</a><p class="micro">Inversión desde 10.000 €.<br/>Colaboración continua.</p></div>{page.links?.map(([t,u])=><a href={u}>{t} →</a>)}</aside></div>
+{isArticle&&<section class="wrap related-reading"><p class="eyebrow">SIGUE EXPLORANDO</p><h2>Más ideas para tu negocio.</h2><div class="three-grid">{related.map(a=><a class="directory-card" href={'/blog/'+a.slug+'/'}><h3>{a.title}</h3><p>{a.intro}</p><span class="text-link">Leer artículo →</span></a>)}</div></section>}
+{!isArticle&&<section class="wrap inner-closing"><div><p class="eyebrow">DE LA IDEA AL SIGUIENTE PASO</p><h2>Veamos qué necesita<br/>tu empresa.</h2><p>Una conversación para entender tu situación y valorar si podemos ayudarte.</p></div><a class="button" href="/contacto/">Cuéntanos tu proyecto ↗</a></section>}
+</>}
+</Layout>
