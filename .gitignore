@@ -10,3 +10,5 @@ dist/
 *.log
 
 preview-dist/
+
+__pycache__/

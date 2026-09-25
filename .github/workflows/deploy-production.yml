@@ -9,6 +9,7 @@ on:
       - 'package*.json'
       - 'astro.config.mjs'
       - 'scripts/**'
+      - 'tests/**'
       - '.github/workflows/deploy-production.yml'
 permissions:
   contents: read
@@ -31,8 +32,13 @@ jobs:
       - run: npm ci
       - run: npm run build
       - run: npm run check:seo
+      - name: Comprobar formulario y gestor privado
+        run: |
+          python3 tests/test-manager.py
+          python3 tests/test-cutover.py
       - name: Publicar con respaldo y verificar portada
         env:
           FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
           FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+          GESTOR_PASSWORD: ${{ secrets.GESTOR_PASSWORD }}
         run: python3 scripts/deploy-production.py

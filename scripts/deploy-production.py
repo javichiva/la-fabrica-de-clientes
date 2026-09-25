@@ -1,6 +1,12 @@
 """Stage the build, retain a web-blocked previous release, then switch root files.
 Does not access/drop the WordPress database. No recursive FTP deletion.
 """
+import http.cookiejar
+import re
+import urllib.parse
+import hashlib
+import json
+import secrets
 import ftplib
 import io
 import os
@@ -16,7 +22,7 @@ root = Path(__file__).resolve().parents[1] / 'dist'
 run = os.environ.get('GITHUB_RUN_ID', str(int(time.time()))) + '-' + os.environ.get('GITHUB_RUN_ATTEMPT', '1')
 stage = '/_fabrica-stage/' + run
 backup = '/_fabrica-backups/' + run
-protected = {'_fabrica-stage', '_fabrica-backups', 'preview-astro', '.well-known', 'cgi-bin', '.ftpquota'}
+protected = {'_fabrica-private', '_fabrica-stage', '_fabrica-backups', 'preview-astro', '.well-known', 'cgi-bin', '.ftpquota'}
 deny = b'Options -Indexes\n<IfModule mod_rewrite.c>\nRewriteEngine On\nRewriteRule ^ - [F,L]\n</IfModule>\nRequire all denied\n'
 if os.environ.get('FTP_USERNAME') != 'info@lafabricadeclientes.es':
     raise SystemExit('Unexpected FTP account; stopping.')
@@ -24,6 +30,14 @@ if not os.environ.get('FTP_PASSWORD') or not (root/'index.html').is_file() or no
     raise SystemExit('Missing credentials or production build.')
 if 'noindex' in (root/'index.html').read_text():
     raise SystemExit('Homepage has noindex; stopping.')
+
+password = os.environ.get('GESTOR_PASSWORD', '')
+if len(password) < 14 or len(password.encode()) > 1024:
+    raise SystemExit('GESTOR_PASSWORD must contain at least 14 characters (maximum 1024 bytes).')
+salt = secrets.token_hex(32)
+auth = json.dumps({'salt': salt, 'iterations': 600000,
+                   'hash': hashlib.pbkdf2_hmac('sha256', password.encode(), salt.encode(), 600000).hex()}).encode()
+del password
 
 def ensure(ftp, path):
     ftp.cwd('/')
@@ -48,9 +62,16 @@ with ftplib.FTP_TLS(context=ssl.create_default_context(), timeout=60) as ftp:
     ftp.prot_p()
     ftp.cwd('/')
     original = [name for name, facts in ftp.mlsd() if name not in ('.','..') and facts.get('type') not in ('cdir','pdir') and name not in protected]
-    for parent in ('/_fabrica-backups','/_fabrica-stage'):
+    for parent in ('/_fabrica-backups','/_fabrica-stage','/_fabrica-private'):
         ensure(ftp,parent)
         ftp.storbinary('STOR .htaccess',io.BytesIO(deny))
+    # Verify denial before ever uploading the password hash. This directory is
+    # explicitly excluded from cutovers; customer data lives outside public_html.
+    ensure(ftp, '/_fabrica-private')
+    ftp.storbinary('STOR protection-check.txt', io.BytesIO(b'access must be denied'))
+    blocked('/_fabrica-private/protection-check.txt')
+    ftp.storbinary('STOR auth-next.json', io.BytesIO(auth))
+    ftp.rename('/_fabrica-private/auth-next.json', '/_fabrica-private/auth.json')
     ensure(ftp,backup+'/original')
     ftp.storbinary('STOR protection-check.txt',io.BytesIO(b'access must be denied'))
     blocked(backup+'/original/protection-check.txt')
@@ -82,6 +103,29 @@ with ftplib.FTP_TLS(context=ssl.create_default_context(), timeout=60) as ftp:
             ftp.rename(stage+'/'+name,'/'+name)
             installed.append(name)
         blocked(backup+'/original/protection-check.txt')
+        blocked('/_fabrica-private/auth.json')
+        # Check the real login with the secret already held by the runner.
+        # Never log returned HTML: it can contain private customer records.
+        client = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(http.cookiejar.CookieJar()))
+        with client.open(SITE+'/gestor/?release='+run, timeout=30) as manager:
+            login = manager.read().decode()
+            if manager.status != 200 or 'Hola, Javier.' not in login or 'noindex' not in manager.headers.get('X-Robots-Tag', ''):
+                raise RuntimeError('Private manager verification failed.')
+        token = re.search(r'name="csrf" value="([a-f0-9]+)"', login)
+        if not token:
+            raise RuntimeError('Private login form unavailable.')
+        payload = urllib.parse.urlencode({'action':'login', 'csrf':token[1], 'password':os.environ['GESTOR_PASSWORD']}).encode()
+        with client.open(SITE+'/gestor/', data=payload, timeout=30) as response:
+            inbox = response.read().decode()
+            if response.status != 200 or 'Tus consultas.' not in inbox:
+                raise RuntimeError('Private login check failed.')
+        token = re.search(r'name="csrf" value="([a-f0-9]+)"', inbox)
+        if not token:
+            raise RuntimeError('Private session check failed.')
+        with client.open(SITE+'/gestor/', data=urllib.parse.urlencode({'action':'logout','csrf':token[1]}).encode(), timeout=30) as response:
+            if 'Hola, Javier.' not in response.read().decode():
+                raise RuntimeError('Private logout check failed.')
+        del payload, login, inbox
         with urllib.request.urlopen(SITE+'/?release='+run,timeout=30) as response:
             html=response.read().decode()
             if response.status!=200 or 'Buen negocio.' not in html or 'noindex' in response.headers.get('X-Robots-Tag',''):

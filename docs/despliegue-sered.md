@@ -19,3 +19,7 @@ Cada despliegue conserva la versión anterior. Revisar el espacio de hosting y c
 Las 51 URL del sitemap anterior siguen existiendo; las 43 sin equivalente en la nueva web se conservan con su texto anterior bajo el diseño Astro. Esos textos breves no se presentan como artículos nuevos ampliados. Los sitemaps antiguos redirigen a /sitemap.xml. HTTPS y www se normalizan mediante .htaccess; las URL inexistentes responden 404.
 
 La política de cookies se ha actualizado para describir la web estática y el mapa bajo petición. El mapa solo contacta con Google cuando el visitante lo carga. Las fuentes continúan sirviéndose desde Google Fonts. No se añaden analítica ni cookies publicitarias.
+
+## Gestor privado (25/09/2026)
+
+El despliegue requiere también `GESTOR_PASSWORD` (mínimo 14 caracteres). Publica el backend PHP y verifica el acceso y el cierre de sesión sin imprimir información de clientes. `/_fabrica-private` queda excluido de las sustituciones y bloqueado por HTTP. Los mensajes se guardan fuera de `public_html`; ver [gestor-interno.md](gestor-interno.md) para almacenamiento, pruebas y copias.

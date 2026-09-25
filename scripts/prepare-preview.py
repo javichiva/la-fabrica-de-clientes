@@ -8,6 +8,8 @@ target = root / 'preview-dist'
 if target.exists():
     shutil.rmtree(target)
 shutil.copytree(root / 'dist', target)
+# The private manager is deployed only to production; preview forms remain non-operational.
+shutil.rmtree(target / 'gestor', ignore_errors=True)
 prefix = '/preview-astro'
 for path in target.rglob('*'):
     if path.suffix not in ('.html', '.css', '.js'):
