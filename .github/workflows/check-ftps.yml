@@ -1,0 +1,59 @@
+name: Comprobar conexion FTPS
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: [.github/workflows/check-ftps.yml]
+
+permissions: {}
+
+jobs:
+  connection:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Verificar TLS, credenciales y lectura sin modificar archivos
+        env:
+          FTP_SERVER: ${{ secrets.FTP_SERVER }}
+          FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import ftplib
+          import os
+          import ssl
+          import sys
+
+          names = ('FTP_SERVER', 'FTP_USERNAME', 'FTP_PASSWORD')
+          missing = [name for name in names if not os.environ.get(name)]
+          if missing:
+              print('::error::Faltan secretos: ' + ', '.join(missing))
+              sys.exit(1)
+          host = os.environ['FTP_SERVER'].strip()
+          if '://' in host or '/' in host or ':' in host:
+              print('::error::FTP_SERVER debe contener solo el nombre del servidor, sin protocolo, puerto ni ruta.')
+              sys.exit(1)
+          stage = 'conexion al puerto 21'
+          try:
+              with ftplib.FTP_TLS(context=ssl.create_default_context(), timeout=30) as ftp:
+                  ftp.connect(host, 21)
+                  stage = 'certificado TLS del servidor'
+                  ftp.auth()
+                  stage = 'usuario y contrasena'
+                  ftp.login(os.environ['FTP_USERNAME'], os.environ['FTP_PASSWORD'])
+                  stage = 'canal de datos cifrado'
+                  ftp.prot_p()
+                  ftp.set_pasv(True)
+                  # Only read the directory. Do not log account paths or filenames.
+                  ftp.retrlines('LIST', lambda line: None)
+                  print('Conexion FTPS, autenticacion y lectura cifrada correctas.')
+                  print('No se han subido, modificado ni borrado archivos.')
+          except Exception as error:
+              # Server responses can contain account data: log only the stage and type.
+              print(f'::error::Fallo en {stage} ({type(error).__name__}).')
+              sys.exit(1)
+          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as summary:
+              summary.write('## Conexion FTPS correcta\nTLS, credenciales y lectura comprobados. No se ha publicado la web.\n')
+          PY
