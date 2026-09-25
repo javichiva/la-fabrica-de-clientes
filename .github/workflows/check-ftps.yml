@@ -15,7 +15,8 @@ jobs:
     steps:
       - name: Verificar TLS, credenciales y lectura sin modificar archivos
         env:
-          FTP_SERVER: ${{ secrets.FTP_SERVER }}
+          # Public hostname verified against the hosting server's TLS certificate.
+          FTP_SERVER: host.cpseo16.eu
           FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
           FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
         shell: bash
@@ -50,6 +51,11 @@ jobs:
                   ftp.retrlines('LIST', lambda line: None)
                   print('Conexion FTPS, autenticacion y lectura cifrada correctas.')
                   print('No se han subido, modificado ni borrado archivos.')
+          except ssl.SSLCertVerificationError as error:
+              reasons = {10: 'certificado caducado', 18: 'certificado autofirmado', 20: 'cadena de certificacion incompleta', 62: 'nombre del servidor no coincide'}
+              reason = reasons.get(error.verify_code, 'certificado no validado')
+              print(f'::error::TLS: {reason}; codigo {error.verify_code}. Se mantiene la validacion del certificado.')
+              sys.exit(1)
           except Exception as error:
               # Server responses can contain account data: log only the stage and type.
               print(f'::error::Fallo en {stage} ({type(error).__name__}).')
