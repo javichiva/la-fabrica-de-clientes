@@ -1,3 +1,5 @@
+> Actualización de migración 25/09/2026: se han migrado las 43 URL restantes, incluidas las cuatro páginas legales. El build genera 76 HTML y 70 URL indexables. El inventario de 51 URL de WordPress mantiene sus rutas. Los apartados siguientes documentan el estado anterior a esta migración. El formulario sigue preparando correo y no envía directamente desde el servidor.
+
 # Auditoría técnica · 25 de septiembre de 2026
 
 ## Resultado

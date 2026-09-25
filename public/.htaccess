@@ -1,0 +1,14 @@
+Options -Indexes
+DirectoryIndex index.html
+ErrorDocument 404 /404.html
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteRule ^_fabrica-(backups|stage)(/|$) - [F,L]
+RewriteCond %{HTTPS} !=on [OR]
+RewriteCond %{HTTP_HOST} !^www\.lafabricadeclientes\.es$ [NC]
+RewriteRule ^ https://www.lafabricadeclientes.es%{REQUEST_URI} [R=301,L,NE]
+RewriteRule ^(?:sitemap_index|post-sitemap|page-sitemap|fdc_service-sitemap|fdc_city-sitemap|fdc_sector-sitemap)\.xml$ /sitemap.xml [R=301,L]
+</IfModule>
+<FilesMatch "^(\.fabrica-production|wp-config\.php|\.env.*)$">
+Require all denied
+</FilesMatch>

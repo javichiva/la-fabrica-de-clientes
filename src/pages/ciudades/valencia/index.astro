@@ -1,0 +1,6 @@
+---
+import LegacyPage from "../../../components/LegacyPage.astro";
+import pages from "../../../data/legacy-pages.json";
+const page=pages.find(p=>p.slug==="ciudades/valencia")!;
+---
+<LegacyPage page={page} />

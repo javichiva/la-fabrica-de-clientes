@@ -1,0 +1,15 @@
+---
+import Layout from '../layouts/Layout.astro';
+const {page}=Astro.props;
+---
+<Layout title={page.title} description={page.description}>
+  <section class="section wrap legacy-page">
+    <p class="eyebrow">LA FÁBRICA DE CLIENTES</p>
+    <h1>{page.title}</h1>
+    <article set:html={page.content} />
+    <a class="text-link" href="/contacto/">Contacta con nosotros →</a>
+  </section>
+</Layout>
+<style>
+.legacy-page{max-width:900px;padding-top:80px;padding-bottom:100px}.legacy-page h1{font-size:clamp(2.4rem,5vw,4rem);line-height:1.1;letter-spacing:-.05em;margin:24px 0 48px}.legacy-page article{font-size:1.08rem;line-height:1.8;margin-bottom:48px}.legacy-page article :global(h2){font-size:1.7rem;line-height:1.3;margin:40px 0 18px}.legacy-page article :global(p){margin:18px 0}.legacy-page article :global(ul),.legacy-page article :global(ol){padding-left:24px}.legacy-page article :global(a){text-decoration:underline;text-underline-offset:4px}
+</style>

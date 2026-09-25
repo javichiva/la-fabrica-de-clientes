@@ -1,0 +1,6 @@
+---
+import LegacyPage from "../../components/LegacyPage.astro";
+import pages from "../../data/legacy-pages.json";
+const page=pages.find(p=>p.slug==="como-saber-agencia-google-ads-hace-bien-trabajo")!;
+---
+<LegacyPage page={page} />
