@@ -29,3 +29,5 @@ Seleccionadas e inspeccionadas desde las fotografías que el usuario identifica 
 - planificacion-pizarra.jpg: https://javierchiva.com/wp-content/uploads/2025/10/Desarrollo-plugins-e1760993389642.jpg
 - trabajo-ecommerce.jpg: https://javierchiva.com/wp-content/uploads/2025/10/Tiendas-Online-e1760993665577.jpg
 - desarrollo-en-equipo.jpg: https://javierchiva.com/wp-content/uploads/2025/10/Mantenimiento-y-Optimizacion-Web-e1760993628248.jpg
+
+- reparatec-web.jpg: captura de https://reparatecvalencia.com/ realizada el 8 de octubre de 2026.
